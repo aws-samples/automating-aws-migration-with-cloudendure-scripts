@@ -1,0 +1,28 @@
+project:
+    waves             : poc
+    machinecount      : 1
+machine1:
+    machineName       : Test-03
+    subnetIDs         : [subnet-xxxxxx]
+    securitygroupIDs  : [sg-xxxxxx]
+    instanceType      : t2.micro
+    iamRole           : None
+    tenancy           : SHARED
+    tags              :
+       count          : 8
+       key1           : Name
+       value1         : Test-02
+       key2           : ami_short_name
+       value2         : win2012-Base
+       key3           : application
+       value3         : Test Web Server
+       key4           : application_tier
+       value4         : APS
+       key5           : cost_center
+       value5         : '112233'
+       key6           : environment
+       value6         : Prod
+       key7           : operating_system
+       value7         : 'W2K12'
+       key8           : migrated
+       value8         : 'true'
