@@ -25,26 +25,35 @@ def launch(launchtype, session, headers, endpoint, HOST, project_id, configfile)
        with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
             config = yaml.load(ymlfile)
     m = requests.get(HOST + endpoint.format('projects/{}/machines').format(project_id), headers=headers, cookies=session)
+    machine_ids = []
+    machine_names = []
     for i in range(1, config["project"]["machinecount"]+1):
         index = "machine" + str(i)
         for machine in json.loads(m.text)["items"]:
             if config[index]["machineName"] == machine['sourceProperties']['name']:
-                if launchtype == "test":
-                   machine_data = {'items': [{"machineId": machine['id']}], "launchType": "TEST"}
-                elif launchtype == "cutover":
-                   machine_data = {'items': [{"machineId": machine['id']}], "launchType": "CUTOVER"}
-                else:
-                  print("ERROR: Invalid Launch Type....")
-        result = requests.post(HOST + endpoint.format('projects/{}/launchMachines').format(project_id), data = json.dumps(machine_data), headers = headers, cookies = session)
+                machine_ids.append({"machineId": machine['id']})
+                machine_names.append(machine['sourceProperties']['name'])
+    if launchtype == "test":
+        machine_data = {'items': machine_ids, "launchType": "TEST"}
+    elif launchtype == "cutover":
+        machine_data = {'items': machine_ids, "launchType": "CUTOVER"}
+    else:
+        print("ERROR: Invalid Launch Type....")
+    result = requests.post(HOST + endpoint.format('projects/{}/launchMachines').format(project_id), data = json.dumps(machine_data), headers = headers, cookies = session)
         # Response code translate to message
-        if result.status_code == 202:
-            if launchtype == "test":
-               print("Test Job created for machine " + config[index]["machineName"] + "....")
-            if launchtype == "cutover":
-               print("Cutover Job created for machine " + config[index]["machineName"] + "....")
-        elif result.status_code == 409:
-            print("ERROR: " + config[index]["machineName"] + " has Job In Progress....")
-        elif result.status_code == 402:
+    if result.status_code == 202:
+        if launchtype == "test":
+            print("Test Job created for machine: ")
+            for machine in machine_names:
+                print("****** " + machine + " ******")
+        if launchtype == "cutover":
+            print("Cutover Job created for machine: ")
+            for machine in machine_names:
+                print("****** " + machine + " ******")
+    elif result.status_code == 409:
+            print("ERROR: Source machines have job in progress....")
+    elif result.status_code == 402:
             print("ERROR: Project license has expired....")
-        else:
+    else:
+            print(result.text)
             print("ERROR: Launch target machine failed....")
