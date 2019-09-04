@@ -35,26 +35,32 @@ def update(launchtype, session, headers, endpoint, HOST, projectId, machinelist,
                 if config[index]["machineName"] == machineName:
                     url = endpoint.format('projects/{}/blueprints/').format(projectId) + blueprint['id']
                     blueprint["instanceType"] = config[index]["instanceType"]
-                    blueprint["tenancy"] = config[index]["tenancy"]
+                    if("tenancy" in config[index]):
+                        blueprint["tenancy"] = config[index]["tenancy"]
                     if config[index]["iamRole"].lower() != "none":
                         blueprint["iamRole"] = config[index]["iamRole"]
-                    for disk in blueprint["disks"]:
-                           blueprint["disks"] = [{"type":"SSD", "name":disk["name"]}]
+                    if (config[index]['disks']['type']):
+                        tmp = []
+                        for disk in blueprint["disks"]:
+                            disk["type"] = "SSD"
+                            tmp.append(disk)
+                        blueprint["disks"] = tmp
                     existing_subnetId = blueprint["subnetIDs"]
                     existing_SecurityGroupIds = blueprint["securityGroupIDs"]
                     blueprint["subnetIDs"] = config[index]["subnetIDs"]
                     blueprint["securityGroupIDs"] = config[index]["securitygroupIDs"]
-                    blueprint["publicIPAction"] = 'DONT_ALLOCATE'
-                    blueprint["privateIPAction"] = 'CREATE_NEW'
-                    tags = []
-                    # Update machine tags
-                    for i in range(1, config[index]["tags"]["count"]+1):
-                        keytag = "key" + str(i)
-                        valuetag = "value" + str(i)
-                        tag = {"key":config[index]["tags"][keytag], "value":config[index]["tags"][valuetag]}
-                        tags.append(tag)
+                    blueprint["publicIPAction"] = config[index]["publicIPAction"]
+                    blueprint["privateIPAction"] = config[index]["privateIPs"]
                     existing_tag = blueprint["tags"]
-                    blueprint["tags"] = tags
+                    if("tags" in config[index]):
+                        tags = []
+                        # Update machine tags
+                        for i in range(1, config[index]["tags"]["count"]+1):
+                            keytag = "key" + str(i)
+                            valuetag = "value" + str(i)
+                            tag = {"key":config[index]["tags"][keytag], "value":config[index]["tags"][valuetag]}
+                            tags.append(tag)
+                        blueprint["tags"] = tags
                     result = requests.patch(HOST + url, data=json.dumps(blueprint), headers=headers, cookies=session)
                     if result.status_code != 200:
                         print("ERROR: Updating blueprint failed for machine: " + machineName +", invalid blueprint config....")
