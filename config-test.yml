@@ -1,8 +1,8 @@
 project:
     waves             : wave1
-    machinecount      : 2
+    machinecount      : 1
 machine1:
-    machineName       : TESTXXX01
+    machineName       : JBIANCO-LAPTOP
     subnetIDs         : [subnet-XXXXX]
     securitygroupIDs  : [sg-XXXXX]
     instanceType      : t2.micro
@@ -11,23 +11,8 @@ machine1:
     tags              :
        count          : 3
        key1           : Name
-       value1         : TESTXXX01
+       value1         : JBIANCODEV01
        key2           : migrated
        value2         : 'true'
        key3           : environment
-       value3         : PROD
-machine2:
-    machineName       : TESTXXX02
-    subnetIDs         : [subnet-XXXXX]
-    securitygroupIDs  : [sg-XXXXX]
-    instanceType      : t2.micro
-    iamRole           : None
-    tags              :
-       count          : 3
-       key1           : Name
-       value1         : TESTXXX01
-       key2           : migrated
-       value2         : 'true'
-       key3           : environment
-       value3         : QA
-       
+       value3         : TEST

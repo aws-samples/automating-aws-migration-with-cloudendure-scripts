@@ -64,12 +64,12 @@ def update(launchtype, session, headers, endpoint, HOST, projectId, machinelist,
                     result = requests.patch(HOST + url, data=json.dumps(blueprint), headers=headers, cookies=session)
                     if result.status_code != 200:
                         print("ERROR: Updating blueprint failed for machine: " + machineName +", invalid blueprint config....")
-                        if dryrun == "Yes":
+                        if dryrun:
                            print("ERROR: YAML validation failed, please fix the errors in the cutover YAML file")
                         sys.exit(4)
                     machinelist[blueprint["machineId"]] = "updated"
                     print("Blueprint for machine: " + machineName + " updated....")
-                    if dryrun == "Yes":
+                    if dryrun:
                        blueprint["subnetIDs"] = existing_subnetId
                        blueprint["securityGroupIDs"] = existing_SecurityGroupIds
                        blueprint["tags"] = existing_tag
@@ -79,6 +79,10 @@ def update(launchtype, session, headers, endpoint, HOST, projectId, machinelist,
                           sys.exit(5)
                        else:
                           print("Dryrun was successful for machine: " + machineName +"...." )
+                elif config[index]["machineName"].lower() == machineName.lower():
+                    print("Error: Machine name exists, but case does not match between AWS and config...")
+                    print("Value in AWS: " + machineName + ", value in config: " + config[index]["machineName"])
+
 
     except:
         print("ERROR: Updating blueprint task failed....")

@@ -21,7 +21,7 @@ import yaml
 import os
 import datetime
 
-def status(session, headers, endpoint, HOST, project_id, configfile, launchtype, dryrun):
+def status(cloud_endure, project_id, configfile, launchtype, dryrun):
     if launchtype == "test" or launchtype == "cutover":
        with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
             config = yaml.load(ymlfile)
@@ -31,7 +31,7 @@ def status(session, headers, endpoint, HOST, project_id, configfile, launchtype,
         index = "machine" + str(i)
         machine_exist = False
         for machine in json.loads(m.text)["items"]:
-           if config[index]["machineName"] == machine['sourceProperties']['name']:
+           if config[index]["machineName"].lower() == machine['sourceProperties']['name'].lower():
               machine_exist = True
               # Check if replication is done
               if 'lastConsistencyDateTime' not in machine['replicationInfo']:
@@ -50,7 +50,7 @@ def status(session, headers, endpoint, HOST, project_id, configfile, launchtype,
                       sys.exit(6)
                   else:
                     # Check dryrun flag and skip the rest of checks
-                    if dryrun == "Yes":
+                    if dryrun:
                        machine_status += 1
                     else:
                        # Check if the target machine has been tested already

@@ -21,53 +21,38 @@ import LaunchMachine
 import requests
 import json
 
-def execute(launchtype, session, headers, endpoint, HOST, projectname, configfile, dryrun):
-    r = requests.get(HOST + endpoint.format('projects'), headers=headers, cookies=session)
-    if r.status_code != 200:
-        print("ERROR: Failed to fetch the project....")
-        sys.exit(1)
+def execute(launchtype, cloud_endure, projectname, configfile, dryrun):
+    project_id = cloud_endure.get_project_id(projectname)
+    # Get Machine List
+    machine_list = cloud_endure.get_machine_list(project_id)
+    if machine_list is None:
+        print("ERROR: Failed to fetch the machines....")
+        sys.exit(3)
+    # machinelist = {machine['sourceProperties']['name']: machine['id'] for machine in json.loads(machines.text)["items"]}
+    for machine in machine_list.keys():
+        print('Machine name:{}, Machine ID:{}'.format(machine, machine_list[machine]['id']))
     try:
-        # Get Project ID
-        projects = json.loads(r.text)["items"]
-        project_exist = False
-        for project in projects:
-            if project["name"] == projectname:
-               project_id = project["id"]
-               project_exist = True
-        if project_exist == False:
-            print("ERROR: Project Name does not exist....")
-            sys.exit(2)
-        
-        # Get Machine List
-        m = requests.get(HOST + endpoint.format('projects/{}/machines').format(project_id), headers=headers, cookies=session)
-        if "sourceProperties" not in m.text:
-            print("ERROR: Failed to fetch the machines....")
-            sys.exit(3)
-        machinelist = {}
-        for machine in json.loads(m.text)["items"]:
-            print('Machine name:{}, Machine ID:{}'.format(machine['sourceProperties']['name'], machine['id']))
-            machinelist[machine['id']] = machine['sourceProperties']['name']
 
         # Check Target Machines
         print("****************************")
         print("* Checking Target machines *")
         print("****************************")
-        CheckMachine.status(session, headers, endpoint, HOST, project_id, configfile, launchtype, dryrun)
-        
-        # Update Machine Blueprint
-        print("**********************")
-        print("* Updating Blueprint *")
-        print("**********************")
-        UpdateBlueprint.update(launchtype, session, headers, endpoint, HOST, project_id, machinelist, configfile, dryrun)
-        
-        
-        # Launch Target machines
-        if dryrun == "No":
-           print("*****************************")
-           print("* Launching target machines *")
-           print("*****************************")
-           LaunchMachine.launch(launchtype, session, headers, endpoint, HOST, project_id, configfile)
-        
-    except:
-        print(sys.exc_info())
-        sys.exit(6)
+        CheckMachine.status(cloud_endure, project_id, configfile, launchtype, dryrun)
+    #
+    #     # Update Machine Blueprint
+    #     print("**********************")
+    #     print("* Updating Blueprint *")
+    #     print("**********************")
+    #     UpdateBlueprint.update(launchtype, session, headers, endpoint, HOST, project_id, machinelist, configfile, dryrun)
+    #
+    #
+    #     # Launch Target machines
+    #     if not dryrun:
+    #        print("*****************************")
+    #        print("* Launching target machines *")
+    #        print("*****************************")
+    #        LaunchMachine.launch(launchtype, session, headers, endpoint, HOST, project_id, configfile)
+    #
+    # except:
+    #     print(sys.exc_info())
+    #     sys.exit(6)
