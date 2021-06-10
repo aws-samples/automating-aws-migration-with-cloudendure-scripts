@@ -23,7 +23,7 @@ import base64
 
 def update(session, headers, endpoint, HOST, projectname, configfile):
     with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
-            config = yaml.load(ymlfile)
+            config = yaml.safe_load(ymlfile)
     r = requests.get(HOST + endpoint.format('projects'), headers=headers, cookies=session)
     if r.status_code != 200:
         print("ERROR: Failed to fetch the project....")

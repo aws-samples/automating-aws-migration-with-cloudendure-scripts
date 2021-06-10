@@ -24,7 +24,7 @@ import datetime
 def status(session, headers, endpoint, HOST, project_id, configfile, launchtype, dryrun):
     if launchtype == "test" or launchtype == "cutover":
        with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
-            config = yaml.load(ymlfile)
+            config = yaml.safe_load(ymlfile)
     machine_status = 0
     m = requests.get(HOST + endpoint.format('projects/{}/machines').format(project_id), headers=headers, cookies=session)
     for i in range(1, config["project"]["machinecount"]+1):

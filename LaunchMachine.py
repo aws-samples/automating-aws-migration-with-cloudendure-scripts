@@ -23,7 +23,7 @@ import os
 def launch(launchtype, session, headers, endpoint, HOST, project_id, configfile):
     if launchtype == "test" or launchtype == "cutover":
        with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
-            config = yaml.load(ymlfile)
+            config = yaml.safe_load(ymlfile)
     m = requests.get(HOST + endpoint.format('projects/{}/machines').format(project_id), headers=headers, cookies=session)
     machine_ids = []
     machine_names = []
