@@ -22,7 +22,7 @@ import os
 
 def remove(session, headers, endpoint, HOST, projectname, configfile):
     with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
-        config = yaml.load(ymlfile)
+        config = yaml.safe_load(ymlfile)
     
     # Get Projects
     r = requests.get(HOST + endpoint.format('projects'), headers=headers, cookies=session)

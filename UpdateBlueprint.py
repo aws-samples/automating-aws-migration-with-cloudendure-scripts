@@ -23,7 +23,7 @@ import os
 def update(launchtype, session, headers, endpoint, HOST, projectId, machinelist, configfile, dryrun):
     if launchtype == "test" or launchtype == "cutover":
        with open(os.path.join(sys.path[0], configfile), 'r') as ymlfile:
-            config = yaml.load(ymlfile)
+            config = yaml.safe_load(ymlfile)
     else:
        print("Invalid Launch Type !")
     try:
